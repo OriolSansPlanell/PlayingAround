@@ -61,8 +61,10 @@ class VolumePairDataset(Dataset):
         """Normalize volume to [0, 1] range"""
         vmin, vmax = volume.min(), volume.max()
         if vmax > vmin:
-            return (volume - vmin) / (vmax - vmin)
-        return volume
+            normalized = (volume - vmin) / (vmax - vmin)
+        else:
+            normalized = volume
+        return normalized.astype(np.float32)
 
     def _generate_patch_coordinates(self) -> List[Tuple[int, int, int]]:
         """Generate random valid patch starting coordinates"""
