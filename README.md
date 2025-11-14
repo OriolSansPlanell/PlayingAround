@@ -10,6 +10,8 @@ This project trains a deep learning model to remove artifacts from laminography 
 
 - **3D Convolutional DVAE**: Fully 3D architecture that preserves spatial relationships
 - **Decoupled latent space**: Separates content and artifact features
+- **Multi-pair training**: Train on multiple volume pairs for better generalization (NEW)
+- **Improved loss functions**: Gradient loss + SSIM for high-quality reconstruction (NEW)
 - **Patch-based training**: Memory-efficient training with overlapping patch extraction
 - **Data augmentation**: Random flips and rotations for improved generalization
 - **Overlapping inference**: Gaussian/linear blending for smooth reconstruction
@@ -25,15 +27,20 @@ This project trains a deep learning model to remove artifacts from laminography 
 │   └── dvae.py                 # DVAE architecture
 ├── data/
 │   ├── __init__.py
-│   └── dataset.py              # Dataset and patch extraction
+│   ├── dataset.py              # Single-pair dataset
+│   └── multi_pair_dataset.py   # Multi-pair dataset (NEW)
 ├── utils/
 │   ├── __init__.py
 │   └── visualization.py        # Visualization and metrics
-├── train.py                    # Training script
+├── train.py                    # Training script (single pair)
+├── train_improved.py           # Improved training (multi-pair) (NEW)
 ├── inference.py                # Inference on full volumes
 ├── demo.py                     # Complete demonstration
+├── example_simple.py           # Minimal example
+├── example_multi_pair.py       # Multi-pair example (NEW)
 ├── requirements.txt            # Dependencies
-└── README.md                   # This file
+├── README.md                   # This file
+└── USAGE_GUIDE.md             # Multi-pair & quality guide (NEW)
 ```
 
 ## Installation
@@ -65,7 +72,7 @@ This will:
 3. Apply the model to correct artifacts
 4. Save results and visualizations to `demo_output/`
 
-### Using Real Data
+### Using Real Data (Single Pair)
 
 If you have real volume pairs (as .npy files):
 
@@ -78,6 +85,36 @@ python demo.py \
     --patch-size 64 \
     --num-patches 1000
 ```
+
+### Using Multiple Volume Pairs (Recommended for Best Quality)
+
+**NEW:** Train on multiple pairs for better generalization and reduced graininess!
+
+```bash
+# Organize your data:
+# data/
+# ├── pair1_lamino.npy
+# ├── pair1_tomo.npy
+# ├── pair2_lamino.npy
+# ├── pair2_tomo.npy
+# └── ...
+
+python train_improved.py \
+    --data-dir /path/to/data \
+    --patch-size 64 \
+    --patches-per-pair 200 \
+    --batch-size 4 \
+    --epochs 150 \
+    --lr 5e-5
+```
+
+This uses the **improved training pipeline** with:
+- Multi-pair dataset loading
+- Gradient loss for smoothness (reduces graininess)
+- SSIM loss for structural similarity
+- Better optimization (AdamW, LR scheduling)
+
+See `USAGE_GUIDE.md` for detailed instructions and quality improvement tips!
 
 ## Training
 
