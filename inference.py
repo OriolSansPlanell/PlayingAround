@@ -52,8 +52,8 @@ class VolumeInference:
         if vmax > vmin:
             normalized = (volume - vmin) / (vmax - vmin)
         else:
-            normalized = volume
-        return normalized, vmin, vmax
+            normalized = volume.copy()
+        return normalized.astype(np.float32), vmin, vmax
 
     def _denormalize(self, volume: np.ndarray, vmin: float, vmax: float) -> np.ndarray:
         """Denormalize volume to original range"""
@@ -94,7 +94,7 @@ class VolumeInference:
             patch, coord = extractor.get_patch(idx)
 
             # Prepare input tensor
-            patch_tensor = torch.from_numpy(patch).unsqueeze(0).unsqueeze(0)  # (1, 1, D, H, W)
+            patch_tensor = torch.from_numpy(patch).unsqueeze(0).unsqueeze(0).float()  # (1, 1, D, H, W)
             patch_tensor = patch_tensor.to(self.device)
 
             # Forward pass
